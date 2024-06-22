@@ -11,6 +11,8 @@ var savingsRouter = require('./routes/savings');
 var cooperativesRouter = require('./routes/cooperatives');
 
 var app = express();
+require('dotenv').config();
+const db = require('./config/db');
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
