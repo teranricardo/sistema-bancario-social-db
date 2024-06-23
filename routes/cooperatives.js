@@ -3,21 +3,21 @@ var router = express.Router();
 var cooperativesController = require("../controllers/cooperatives.c");
 
 /* POST crear cooperative */
-router.post('/', cooperativesController.create);
+router.post('/', (req, res) => cooperativesController.create(req, res));
 
 /* GET cooperative listing. */
-router.get('/', cooperativesController.show);
+router.get('/', (req, res) => cooperativesController.show(req, res));
 
-/* POST cooperative por id */
-router.get('/:id', cooperativesController.showByID);
+/* GET cooperative por id */
+router.get('/:id', (req, res) => cooperativesController.showByID(req, res));
 
 /* PUT editar cooperative */
-router.put('/:id', cooperativesController.edit);
+router.put('/:id', (req, res) => cooperativesController.edit(req, res));
 
 /* DELETE eliminar cooperative */
-router.delete('/:id', cooperativesController.delete);
+router.delete('/:id', (req, res) => cooperativesController.delete(req, res));
 
 /* PUT agregar usuario a cooperative */
-router.put('/add-user/:id', cooperativesController.addUser);
+router.put('/add-user/:id', (req, res) => cooperativesController.addUser(req, res));
 
 module.exports = router;
