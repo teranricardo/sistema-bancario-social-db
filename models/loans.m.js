@@ -1,44 +1,62 @@
+const pool = require('../config/db');
 const { v4: uuidv4 } = require('uuid');
-
-let loansDB = [
-  {
-    "id": 1,
-    "userId": 1,
-    "amount": 2000,
-    "interestRate": 5,
-    "balance": -2500,
-    "nextPaymentDate": "2024-07-29",
-    "createdAt": "2024-07-29",
-  }
-]
 
 class LoansModel {
   create(loan) {
-    loan.id = uuidv4();
-    loansDB.push(loan);
+    return new Promise((resolve, reject) => {
+      loan.id = uuidv4();
+      const query = 'INSERT INTO loans (id, userId, amount, interestRate, balance, nextPaymentDate, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?)';
+      const values = [loan.id, loan.userId, loan.amount, loan.interestRate, loan.balance, loan.nextPaymentDate, loan.createdAt];
+      pool.query(query, values)
+        .then(([result]) => resolve(result.insertId))
+        .catch(error => reject(error));
+    });
   }
 
   show() {
-    return loansDB;
+    return new Promise((resolve, reject) => {
+      const query = 'SELECT * FROM loans';
+      pool.query(query)
+        .then(([rows]) => resolve(rows))
+        .catch(error => reject(error));
+    });
   }
 
   showByID(id) {
-    return loansDB.filter(loan => loan.id == id);
+    return new Promise((resolve, reject) => {
+      const query = 'SELECT * FROM loans WHERE id = ?';
+      pool.query(query, [id])
+        .then(([rows]) => resolve(rows[0]))
+        .catch(error => reject(error));
+    });
   }
 
-  edit(loan, id) {
-    const index = loansDB.findIndex(loan => loan.id == id);
-    return loansDB[index] = loan;
+  edit(updatedLoan, id) {
+    return new Promise((resolve, reject) => {
+      const query = 'UPDATE loans SET userId = ?, amount = ?, interestRate = ?, balance = ?, nextPaymentDate = ?, createdAt = ? WHERE id = ?';
+      const values = [updatedLoan.userId, updatedLoan.amount, updatedLoan.interestRate, updatedLoan.balance, updatedLoan.nextPaymentDate, updatedLoan.createdAt, id];
+      pool.query(query, values)
+        .then(([result]) => resolve(result.affectedRows))
+        .catch(error => reject(error));
+    });
   }
 
   delete(id) {
-    const index = loansDB.findIndex(loan => loan.id == id);
-    loansDB.splice(index, 1);
-    return loansDB;
+    return new Promise((resolve, reject) => {
+      const query = 'DELETE FROM loans WHERE id = ?';
+      pool.query(query, [id])
+        .then(([result]) => resolve(result.affectedRows))
+        .catch(error => reject(error));
+    });
   }
 
-  showByUserID(id) {
-    return loansDB.filter(loan => loan.userId == id);
+  showByUserID(userId) {
+    return new Promise((resolve, reject) => {
+      const query = 'SELECT * FROM loans WHERE userId = ?';
+      pool.query(query, [userId])
+        .then(([rows]) => resolve(rows))
+        .catch(error => reject(error));
+    });
   }
 }
 
