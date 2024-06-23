@@ -1,42 +1,62 @@
+const pool = require('../config/db');
 const { v4: uuidv4 } = require('uuid');
-
-let savingsDB = [
-  {
-    "id": 1,
-    "userId": 1,
-    "interestRate": 1.2,
-    "balance": 500,
-    "createdAt": "2024-03-10",
- }
-]
 
 class SavingsModel {
   create(saving) {
-    saving.id = uuidv4();
-    savingsDB.push(saving);
+    return new Promise((resolve, reject) => {
+      saving.id = uuidv4();
+      const query = 'INSERT INTO savings (id, userId, interestRate, balance, createdAt) VALUES (?, ?, ?, ?, ?)';
+      const values = [saving.id, saving.userId, saving.interestRate, saving.balance, saving.createdAt];
+      pool.query(query, values)
+        .then(([result]) => resolve(result.insertId))
+        .catch(error => reject(error));
+    });
   }
 
   show() {
-    return savingsDB;
+    return new Promise((resolve, reject) => {
+      const query = 'SELECT * FROM savings';
+      pool.query(query)
+        .then(([rows]) => resolve(rows))
+        .catch(error => reject(error));
+    });
   }
 
   showByID(id) {
-    return savingsDB.filter(saving => saving.id == id);
+    return new Promise((resolve, reject) => {
+      const query = 'SELECT * FROM savings WHERE id = ?';
+      pool.query(query, [id])
+        .then(([rows]) => resolve(rows[0]))
+        .catch(error => reject(error));
+    });
   }
 
   edit(saving, id) {
-    const index = savingsDB.findIndex(saving => saving.id == id);
-    return savingsDB[index] = saving;
+    return new Promise((resolve, reject) => {
+      const query = 'UPDATE savings SET userId = ?, interestRate = ?, balance = ?, createdAt = ? WHERE id = ?';
+      const values = [saving.userId, saving.interestRate, saving.balance, saving.createdAt, id];
+      pool.query(query, values)
+        .then(([result]) => resolve(result.affectedRows))
+        .catch(error => reject(error));
+    });
   }
 
   delete(id) {
-    const index = savingsDB.findIndex(saving => saving.id == id);
-    savingsDB.splice(index, 1);
-    return savingsDB;
+    return new Promise((resolve, reject) => {
+      const query = 'DELETE FROM savings WHERE id = ?';
+      pool.query(query, [id])
+        .then(([result]) => resolve(result.affectedRows))
+        .catch(error => reject(error));
+    });
   }
 
-  showByUserID(id) {
-    return savingsDB.filter(saving => saving.userId == id);
+  showByUserID(userId) {
+    return new Promise((resolve, reject) => {
+      const query = 'SELECT * FROM savings WHERE userId = ?';
+      pool.query(query, [userId])
+        .then(([rows]) => resolve(rows))
+        .catch(error => reject(error));
+    });
   }
 }
 

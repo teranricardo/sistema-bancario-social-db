@@ -3,18 +3,18 @@ var router = express.Router();
 var savingsController = require("../controllers/savings.c");
 
 /* POST crear saving */
-router.post('/', savingsController.create);
+router.post('/', (req, res) => savingsController.create(req, res));
 
-/* GET saving listing. */
-router.get('/', savingsController.show);
+/* GET listar savings */
+router.get('/', (req, res) => savingsController.show(req, res));
 
-/* POST saving por id */
-router.get('/:id', savingsController.showByID);
+/* GET saving por id */
+router.get('/:id', (req, res) => savingsController.showByID(req, res));
 
 /* PUT editar saving */
-router.put('/:id', savingsController.edit);
+router.put('/:id', (req, res) => savingsController.edit(req, res));
 
 /* DELETE eliminar saving */
-router.delete('/:id', savingsController.delete);
+router.delete('/:id', (req, res) => savingsController.delete(req, res));
 
 module.exports = router;
