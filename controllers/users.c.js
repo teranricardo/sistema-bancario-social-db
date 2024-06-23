@@ -10,24 +10,28 @@ class UsersController {
       return res.status(400).send("Faltan datos del usuario por agregar.");
     }
     usersModel.create(user)
-      .then(() => res.status(201).send(user))
+      .then(() => res.redirect('/users'))
       .catch((err) => res.status(500).send(`Error al crear usuario: ${err}`));
   }
 
   show(req, res) {
     usersModel.show()
-      .then((users) => res.status(200).json(users))
+      .then((users) => res.render('users/index', { users }))
       .catch((err) => res.status(500).send(`Error al listar usuarios: ${err}`));
   }
 
-  showByID(req, res) {
+  showByID(req, res, edit) {
     const id = req.params.id;
     usersModel.showByID(id)
       .then((user) => {
         if (!user) {
           return res.status(404).send(`No se encontró el usuario con id: ${id}`);
         }
-        res.status(200).json(user);
+        if (edit) {
+          return res.render('users/edit', { user });
+        }
+
+        return res.render('users/show', { user });
       })
       .catch((err) => res.status(500).send(`Error al buscar usuario: ${err}`));
   }
@@ -41,7 +45,7 @@ class UsersController {
           return res.status(404).send(`No se encontró el usuario con id: ${id}`);
         }
         usersModel.edit(updatedUser, id)
-          .then(() => res.status(200).send(`Usuario con id ${id} editado correctamente.`))
+          .then(() => res.redirect(`/users/${id}`))
           .catch((err) => res.status(500).send(`Error al editar usuario: ${err}`));
       })
       .catch((err) => res.status(500).send(`Error al buscar usuario: ${err}`));
@@ -55,7 +59,7 @@ class UsersController {
           return res.status(404).send(`No se encontró el usuario con id: ${id}`);
         }
         usersModel.delete(id)
-          .then(() => res.status(200).send(`Usuario con id ${id} eliminado correctamente.`))
+          .then(() => res.redirect('/users'))
           .catch((err) => res.status(500).send(`Error al eliminar usuario: ${err}`));
       })
       .catch((err) => res.status(500).send(`Error al buscar usuario: ${err}`));
@@ -71,7 +75,6 @@ class UsersController {
         const loansAccount = loansModel.showByUserID(id);
         const savingsAccount = savingsModel.showByUserID(id);
         const cooperativesAccount = cooperativesModel.showByUserID(id);
-
         Promise.all([loansAccount, savingsAccount, cooperativesAccount])
           .then(([loans, savings, cooperatives]) => {
             const accounts = {
@@ -79,7 +82,7 @@ class UsersController {
               savings,
               cooperatives
             };
-            res.status(200).json(accounts);
+            res.render('users/accounts', { accounts, user });
           })
           .catch((err) => res.status(500).send(`Error al obtener cuentas del usuario: ${err}`));
       })
@@ -139,8 +142,7 @@ class UsersController {
                 averageBalance: averageCooperativeBalance.toFixed(2)
               }
             };
-
-            res.status(200).json(summary);
+            res.render('users/summary', { summary, user });
           })
           .catch((err) => res.status(500).send(`Error al obtener cuentas del usuario: ${err}`));
       })

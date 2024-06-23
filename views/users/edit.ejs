@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Editar Usuario</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+
+<body>
+  <h1>Editar Usuario</h1>
+  <form id="editForm" action="/users/<%= user.id %>" method="POST">
+    <label for="name">Nombre:</label>
+    <input type="text" id="name" name="name" value="<%= user.name %>" required>
+    <div class="button-group">
+      <button type="button" class="button" onclick="updateUser()">Guardar Cambios</button>
+      <a href="/users" class="button_delete">Cancelar</a>
+    </div>
+  </form>
+
+
+  <script>
+    // Evitar el envío predeterminado del formulario al presionar Enter
+    document.getElementById('editForm').addEventListener('submit', function (event) {
+      event.preventDefault();
+      updateUser();
+    });
+
+    function updateUser() {
+      const userId = '<%= user.id %>';
+      const name = document.getElementById('name').value;
+
+      fetch(`/users/${userId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ name: name })
+      })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Error al actualizar usuario');
+          }
+          window.location.href = '/users';
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          window.location.href = '/users';
+        });
+    }
+  </script>
+</body>
+
+</html>
