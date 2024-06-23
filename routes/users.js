@@ -2,25 +2,25 @@ var express = require('express');
 var router = express.Router();
 var usersController = require("../controllers/users.c");
 
-/* POST crear user */
-router.post('/', usersController.create);
+/* POST crear usuario */
+router.post('/', (req, res) => usersController.create(req, res));
 
-/* GET users listing. */
-router.get('/', usersController.show);
+/* GET listar usuarios */
+router.get('/', (req, res) => usersController.show(req, res));
 
-/* POST user por id */
-router.get('/:id', usersController.showByID);
+/* GET usuario por id */
+router.get('/:id', (req, res) => usersController.showByID(req, res));
 
-/* PUT editar user */
-router.put('/:id', usersController.edit);
+/* PUT editar usuario */
+router.put('/:id', (req, res) => usersController.edit(req, res));
 
-/* DELETE eliminar user */
-router.delete('/:id', usersController.delete);
+/* DELETE eliminar usuario */
+router.delete('/:id', (req, res) => usersController.delete(req, res));
 
-/* GET cuentas del user */
-router.get('/accounts/:id', usersController.getAccounts);
+/* GET cuentas del usuario */
+router.get('/:id/accounts', (req, res) => usersController.getAccounts(req, res));
 
-/* GET resumen de cuentas del user */
-router.get('/summary-accounts/:id', usersController.summaryAccounts);
+/* GET resumen de cuentas del usuario */
+router.get('/:id/accounts/summary', (req, res) => usersController.summaryAccounts(req, res));
 
 module.exports = router;
