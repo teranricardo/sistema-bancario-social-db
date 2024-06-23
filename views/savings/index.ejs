@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Listado de Cuentas de Ahorro</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <h1>Listado de Cuentas de Ahorro</h1>
+  
+  <% if (savings.length > 0) { %>
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>ID del Usuario</th>
+          <th>Tasa de Interés</th>
+          <th>Balance</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% savings.forEach(saving => { %>
+          <tr>
+            <td><%= saving.id %></td>
+            <td><%= saving.userId %></td>
+            <td><%= saving.interestRate %></td>
+            <td><%= saving.balance %></td>
+            <td>
+              <a href="/savings/<%= saving.id %>" class="button">Ver</a>
+              <a href="/savings/<%= saving.id %>/edit" class="button">Editar</a>
+              <button type="button" class="button_delete" onclick="confirmAndDelete('<%= saving.id %>')">Eliminar</button>
+            </td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  <% } else { %>
+    <h2>No existen cuentas de ahorro.</h2>
+  <% } %>
+
+  <div class="button-group">
+    <a href="/savings/new" class="button">Crear Cuenta</a>
+    <a href="/" class="button_delete">Menú Principal</a>
+  </div>
+
+  <script>
+    function confirmAndDelete(savingId) {
+      if (confirm('¿Estás seguro de eliminar esta cuenta de ahorro?')) {
+        deleteSaving(savingId);
+      }
+    }
+
+    function deleteSaving(savingId) {
+      fetch(`/savings/${savingId}`, {
+        method: 'DELETE'
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Error al eliminar cuenta de ahorro');
+        }
+        window.location.reload();
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        window.location.reload();
+      });
+    }
+  </script>
+</body>
+</html>

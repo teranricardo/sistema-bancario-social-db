@@ -75,7 +75,10 @@ class LoansController {
         if (!loan) {
           return res.status(404).send(`No se encontró el préstamo con ID: ${id}`);
         }
-        res.status(200).send(loan.nextPaymentDate);
+        const date = loan.nextPaymentDate;
+        const id = loan.id;
+        res.status(200).render("next-payment-date");
+        res.render('next-payment-date', { id, date });
       })
       .catch((err) => res.status(500).send(`Error al buscar el préstamo: ${err}`));
   }

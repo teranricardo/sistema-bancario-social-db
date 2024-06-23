@@ -2,6 +2,14 @@ var savingsModel = require("../models/savings.m");
 var usersModel = require("../models/users.m");
 
 class SavingController {
+  createForm(req, res) {
+    usersModel.show()
+      .then((users) => {
+        res.render('savings/new', { users });
+      })
+      .catch((err) => res.status(500).send(`Error al obtener usuarios: ${err}`));
+  }
+
   create(req, res) {
     let saving = req.body;
     if (!saving.userId || !saving.interestRate || !saving.balance) {
@@ -14,7 +22,7 @@ class SavingController {
         }
         saving.createdAt = new Date();
         return savingsModel.create(saving)
-          .then(() => res.status(201).send(saving))
+          .then(() => res.redirect('/savings'))
           .catch((err) => res.status(500).send(`Error al crear la cuenta de ahorro: ${err}`));
       })
       .catch((err) => res.status(500).send(`Error al crear la cuenta de ahorro: ${err}`));
@@ -22,7 +30,7 @@ class SavingController {
 
   show(req, res) {
     savingsModel.show()
-      .then((savings) => res.status(200).json(savings))
+      .then((savings) => res.render('savings/index', { savings }))
       .catch((err) => res.status(500).send(`Error al listar cuentas de ahorro: ${err}`));
   }
 
@@ -34,12 +42,25 @@ class SavingController {
         if (!saving) {
           return res.status(404).send(`No se encontró la cuenta de ahorro con id: ${id}`);
         }
-        res.status(200).json(saving);
+        res.render('savings/show', { saving });
       })
       .catch((err) => res.status(500).send(`Error al buscar la cuenta de ahorro: ${err}`));
   }
 
   edit(req, res) {
+    const id = req.params.id;
+
+    Promise.all([savingsModel.showByID(id), usersModel.show()])
+      .then(([saving, users]) => {
+        if (!saving) {
+          return res.status(404).send(`No se encontró la cuenta de ahorro con id: ${id}`);
+        }
+        res.render('savings/edit', { saving, users });
+      })
+      .catch((err) => res.status(500).send(`Error al cargar la cuenta de ahorro para editar: ${err}`));
+  }
+
+  update(req, res) {
     const id = req.params.id;
     const updatedSaving = req.body;
 
@@ -49,18 +70,6 @@ class SavingController {
           return res.status(404).send(`No se encontró la cuenta de ahorro con id: ${id}`);
         }
 
-        if (updatedSaving.userId) {
-          return usersModel.showByID(updatedSaving.userId)
-            .then((user) => {
-              if (!user) {
-                return res.status(404).send(`No se encontró el usuario con id: ${updatedSaving.userId}`);
-              }
-              return saving;
-            });
-        }
-        return saving;
-      })
-      .then((saving) => {
         const newSaving = {
           id: id,
           userId: updatedSaving.userId ? updatedSaving.userId : saving.userId,
@@ -69,9 +78,10 @@ class SavingController {
           balance: updatedSaving.balance ? updatedSaving.balance : saving.balance,
         };
 
-        return savingsModel.edit(newSaving, id);
+        return savingsModel.edit(newSaving, id)
+          .then(() => res.redirect(`/savings/${id}`))
+          .catch((err) => res.status(500).send(`Error al editar la cuenta de ahorro: ${err}`));
       })
-      .then(() => res.status(200).send(`Cuenta de ahorro con id ${id} editada correctamente.`))
       .catch((err) => res.status(500).send(`Error al editar la cuenta de ahorro: ${err}`));
   }
 
@@ -84,7 +94,7 @@ class SavingController {
           return res.status(404).send(`No se encontró la cuenta de ahorro con id: ${id}`);
         }
         return savingsModel.delete(id)
-          .then(() => res.status(200).send(`Cuenta de ahorro con id ${id} eliminada correctamente.`))
+          .then(() => res.redirect('/savings'))
           .catch((err) => res.status(500).send(`Error al eliminar la cuenta de ahorro: ${err}`));
       })
       .catch((err) => res.status(500).send(`Error al eliminar la cuenta de ahorro: ${err}`));
